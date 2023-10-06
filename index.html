@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <title>Timer Example</title>
+    <style>
+        /* Stile per il timer */
+        #timer {
+            font-size: 36px;
+        }
+    </style>
+</head>
+<body>
+
+
+            <div class="text-center">
+                <h1>Intesa Vincente</h1>
+                <h3 id="timer">01:00</h3>
+                <h3 id="word"></h3>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-success" onclick="startTimer()">Start</button>
+                    <button type="button" class="btn btn-danger" onclick="stopTimer()">Stop</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+                </div>
+
+            
+            </div>
+
+    
+    <script>
+        let timer;
+        let seconds = 0;
+        let minutes = 1;
+
+        let i = 0;
+        let words = [];
+        let words2 = [];
+        let on = false;
+
+        document.addEventListener("keydown", async function(event) {
+            if (event.keyCode === 32) { // 32 è il codice del tasto space bar
+                console.log("AAAAAAAaa")
+                if(!on){
+                    await startTimer();
+                } else {
+                    stopTimer();
+                }
+            }
+        });
+
+
+        async function startTimer() {
+
+            if(!on){
+                on = true;
+                let response= await fetch("http://localhost:8000/");
+                response = await response.json();
+                words = Array.from(response);
+                
+                response = await fetch("http://localhost:8000/");
+                response = await response.json();
+                words2 = Array.from(response);
+                i=0;
+
+            } else return;
+
+
+            if(i<10){
+                document.getElementById("word").innerHTML = words[i];
+                i++;
+                timer = setInterval(updateTimer, 1000);
+            } else{
+                i=0;
+                words = words2;
+
+                let response = await fetch("http://localhost:8000/");
+                response = await response.json();
+                words2 = Array.from(response);
+
+                document.getElementById("word").innerHTML = words[i];
+                i++;
+                timer = setInterval(updateTimer, 1000);
+            }
+
+
+        }
+
+        function stopTimer() {
+            on = false;
+            clearInterval(timer);
+        }
+
+        function resetTimer() {
+            on = false;
+            clearInterval(timer);
+            seconds = 1;
+            minutes = 1;
+            updateTimer();
+        }
+
+        function updateTimer() {
+            if (seconds === 0) {
+                if(minutes==0) {
+                    seconds = 0;
+                    minutes = 1;
+                    resetTimer()
+                    return;
+                }
+                seconds = 60;
+                minutes--;
+            }
+            seconds--;
+            
+
+            const formattedTime = `${padNumber(minutes)}:${padNumber(seconds)}`;
+            document.getElementById("timer").innerHTML = formattedTime;
+        }
+
+        function padNumber(num) {
+            return num.toString().padStart(2, "0");
+        }
+
+    </script>
+</body>
+</html>
