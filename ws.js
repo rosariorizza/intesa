@@ -1,5 +1,17 @@
-const socket = new WebSocket("ws://localhost:4200/ws");
+
+let queryString = window.location.search;
+
+let urlParams = new URLSearchParams(queryString);
+
+let roomCode = urlParams.get("room");
+
+if(!roomCode){
+    console.log("Room not found")
+}
+
+const socket = new WebSocket(`ws://localhost:4200/play?room=${roomCode}`);
 let on = false
+
 
 
 function startTimer(){
@@ -19,6 +31,8 @@ function resetTimer(){
 
 socket.onopen = () => {
     console.log("Connessione WebSocket aperta.");
+    document.getElementById("roomCodeShare").textContent = `Condividi il codice per giocare in gruppo: ${roomCode}`;
+
 };
 
 socket.onmessage = (event) => {
